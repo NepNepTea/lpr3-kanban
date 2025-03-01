@@ -17,7 +17,8 @@ Vue.component('newTask', {
             header: null,
             description: null,
             creationDate: null,
-            deadline: null
+            deadline: null,
+            updateTime: null
         }
     },
     methods: {
@@ -27,7 +28,8 @@ Vue.component('newTask', {
                 header: this.header,
                 description: this.description,
                 creationDate: `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`,
-                deadline: this.deadline
+                deadline: this.deadline,
+                updateTime: null
             }
             eventBus.$emit('task-created', task)
             this.header = null
@@ -45,14 +47,15 @@ Vue.component('column1', {
         <newTask class="p-2 border border-primary"></newTask>
         <ul>
             <li v-for="(task, index) in tasks">
-                <form @submit.prevent="updateTask">
+                <form @submit.prevent="updateTask(index)">
                     <input type="text" id="header" name="header" v-model="task.header"><br>
+                    <label for="description">Описание:</label><br>
                     <input type="text" id="description" name="description" v-model="task.description"><br>
-                    {{ task.description }}<br>
                     <p>
                         Создано {{ task.creationDate }}<br>
                         Дэдлайн <input type="text" id="deadline" name="deadline" v-model="task.deadline">
                     </p>
+                    <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
                     <input type="submit" value="изменить">
                 </form>
                 <button @click="removeTask(index)"><img src="assets/cros.svg" alt="remove" width="30" height="30"></button><br>
@@ -68,7 +71,9 @@ Vue.component('column1', {
         }
     },
     methods: {
-        updateTask() {
+        updateTask(index) {
+            today = new Date()
+            this.tasks[index].updateTime = `${today.getHours()}:${today.getMinutes()}`
             localStorage.setItem('tasks1', JSON.stringify(this.tasks));
         },
         removeTask(index) {
@@ -100,13 +105,17 @@ Vue.component('column2', {
         <h4>Задачи в работе</h4>
         <ul>
             <li v-for="(task, index) in tasks">
-                {{ task.header }}<br>
-                {{ task.description }}<br>
-                <p>
-                    Создано {{ task.creationDate }}<br>
-                    Дэдлайн {{ task.deadline }}
-                </p>
-                <button @click="removeTask(index)"><img src="assets/cros.svg" alt="remove" width="30" height="30"></button>
+                <form @submit.prevent="updateTask(index)">
+                    <input type="text" id="header" name="header" v-model="task.header"><br>
+                    <label for="description">Описание:</label><br>
+                    <input type="text" id="description" name="description" v-model="task.description"><br>
+                    <p>
+                        Создано {{ task.creationDate }}<br>
+                        Дэдлайн <input type="text" id="deadline" name="deadline" v-model="task.deadline">
+                    </p>
+                    <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
+                    <input type="submit" value="изменить">
+                </form>
                 <button @click="moveNext(index)"><img src="assets/right.svg" alt="right" width="30" height="30"></button>
                 <hr></hr>
             </li>
@@ -119,13 +128,13 @@ Vue.component('column2', {
         }
     },
     methods: {
-        removeTask(index) {
-            let trash = this.tasks.splice(index, 1)
+        updateTask(index) {
+            today = new Date()
+            this.tasks[index].updateTime = `${today.getHours()}:${today.getMinutes()}`
             localStorage.setItem('tasks2', JSON.stringify(this.tasks));
-            location.reload();
         },
         moveNext(index) {
-            eventBus.$emit('task-to-work', this.tasks[index]);
+            eventBus.$emit('task-to-test', this.tasks[index]);
             let trash = this.tasks.splice(index, 1)
             localStorage.setItem('tasks2', JSON.stringify(this.tasks));
             location.reload();
@@ -135,7 +144,7 @@ Vue.component('column2', {
         if (localStorage.getItem('tasks2')) {
             this.tasks = JSON.parse(localStorage.getItem('tasks2'));
         }
-        eventBus.$on('task-to-test', task => {
+        eventBus.$on('task-to-work', task => {
             this.tasks.push(task)
             localStorage.setItem('tasks2', JSON.stringify(this.tasks));
         })
