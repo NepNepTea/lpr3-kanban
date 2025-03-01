@@ -155,6 +155,24 @@ Vue.component('column3', {
     template: `
     <div class="p-2 border border-primary">
         <h4>Тестирование</h4>
+        <ul>
+            <li v-for="(task, index) in tasks">
+                <form @submit.prevent="updateTask(index)">
+                    <input type="text" id="header" name="header" v-model="task.header"><br>
+                    <label for="description">Описание:</label><br>
+                    <input type="text" id="description" name="description" v-model="task.description"><br>
+                    <p>
+                        Создано {{ task.creationDate }}<br>
+                        Дэдлайн <input type="text" id="deadline" name="deadline" v-model="task.deadline">
+                    </p>
+                    <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
+                    <input type="submit" value="изменить">
+                </form>
+                <button @click="moveBack(index)"><img src="assets/left.svg" alt="right" width="30" height="30"></button>
+                <button @click="moveNext(index)"><img src="assets/right.svg" alt="right" width="30" height="30"></button>
+                <hr></hr>
+            </li>
+        </ul>
     </div>
     `,
     data() {
@@ -162,9 +180,32 @@ Vue.component('column3', {
             tasks: []
         }
     },
+    methods: {
+        updateTask(index) {
+            today = new Date()
+            this.tasks[index].updateTime = `${today.getHours()}:${today.getMinutes()}`
+            localStorage.setItem('tasks3', JSON.stringify(this.tasks));
+        },
+        moveNext(index) {
+            eventBus.$emit('task-complete', this.tasks[index]);
+            let trash = this.tasks.splice(index, 1)
+            localStorage.setItem('tasks3', JSON.stringify(this.tasks));
+            location.reload();
+        },
+        moveBack(index) {
+            eventBus.$emit('task-to-work', this.tasks[index]);
+            let trash = this.tasks.splice(index, 1)
+            localStorage.setItem('tasks3', JSON.stringify(this.tasks));
+            location.reload();
+        }
+    },
     mounted() {
+        if (localStorage.getItem('tasks3')) {
+            this.tasks = JSON.parse(localStorage.getItem('tasks3'));
+        }
         eventBus.$on('task-to-test', task => {
             this.tasks.push(task)
+            localStorage.setItem('tasks3', JSON.stringify(this.tasks));
         })
     }
 })
