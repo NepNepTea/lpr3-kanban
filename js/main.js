@@ -8,7 +8,7 @@ Vue.component('newTask', {
             <label for="description">Описание:</label><br>
             <input type="text" id="description" name="description" v-model="description"><br>
             <label for="deadline">Дэдлайн:</label><br>
-            <input type="text" id="deadline" name="deadline" v-model="deadline"><br><br>
+            <input type="date" id="deadline" name="deadline" v-model="deadline"><br><br>
             <input type="submit" value="Создать">
         </form>
     `,
@@ -29,7 +29,7 @@ Vue.component('newTask', {
             let task = {
                 header: this.header,
                 description: this.description,
-                creationDate: `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`,
+                creationDate: `${today.getDate()}-${today.getMonth()}-${today.getFullYear()}`,
                 deadline: this.deadline,
                 updateTime: null,
                 problem: null,
@@ -57,7 +57,7 @@ Vue.component('column1', {
                     <input type="text" id="description" name="description" v-model="task.description"><br>
                     <p>
                         Создано {{ task.creationDate }}<br>
-                        Дэдлайн <input type="text" id="deadline" name="deadline" v-model="task.deadline">
+                        Дэдлайн <input type="date" id="deadline" name="deadline" v-model="task.deadline">
                     </p>
                     <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
                     <input type="submit" value="изменить">
@@ -115,7 +115,7 @@ Vue.component('column2', {
                     <input type="text" id="description" name="description" v-model="task.description"><br>
                     <p>
                         Создано {{ task.creationDate }}<br>
-                        Дэдлайн <input type="text" id="deadline" name="deadline" v-model="task.deadline">
+                        Дэдлайн <input type="date" id="deadline" name="deadline" v-model="task.deadline">
                     </p>
                     <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
                     <input type="submit" value="изменить">
@@ -172,7 +172,7 @@ Vue.component('column3', {
                     <input type="text" id="description" name="description" v-model="task.description"><br>
                     <p>
                         Создано {{ task.creationDate }}<br>
-                        Дэдлайн <input type="text" id="deadline" name="deadline" v-model="task.deadline">
+                        Дэдлайн <input date="text" id="deadline" name="deadline" v-model="task.deadline">
                     </p>
                     <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
                     <input type="submit" value="изменить">
@@ -242,7 +242,7 @@ Vue.component('column4', {
                     </p>
                     <p>
                         Создано {{ task.creationDate }}<br>
-                        Дэдлайн {{ task.creationDate }}
+                        Дэдлайн {{ task.deadline }}<br>
                         Статус {{ task.statusCompletion }}
                     </p>
                     <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
