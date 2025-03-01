@@ -18,7 +18,9 @@ Vue.component('newTask', {
             description: null,
             creationDate: null,
             deadline: null,
-            updateTime: null
+            updateTime: null,
+            problem: null,
+            statusCompletion: null
         }
     },
     methods: {
@@ -29,7 +31,9 @@ Vue.component('newTask', {
                 description: this.description,
                 creationDate: `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`,
                 deadline: this.deadline,
-                updateTime: null
+                updateTime: null,
+                problem: null,
+                statusCompletion: null
             }
             eventBus.$emit('task-created', task)
             this.header = null
@@ -116,6 +120,10 @@ Vue.component('column2', {
                     <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
                     <input type="submit" value="изменить">
                 </form>
+                <p v-show="task.problem">
+                    Нужно изменить:<br>
+                    {{ task.problem }}
+                </p>
                 <button @click="moveNext(index)"><img src="assets/right.svg" alt="right" width="30" height="30"></button>
                 <hr></hr>
             </li>
@@ -134,6 +142,7 @@ Vue.component('column2', {
             localStorage.setItem('tasks2', JSON.stringify(this.tasks));
         },
         moveNext(index) {
+            this.tasks[index].problem = null
             eventBus.$emit('task-to-test', this.tasks[index]);
             let trash = this.tasks.splice(index, 1)
             localStorage.setItem('tasks2', JSON.stringify(this.tasks));
@@ -168,8 +177,12 @@ Vue.component('column3', {
                     <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
                     <input type="submit" value="изменить">
                 </form>
-                <button @click="moveBack(index)"><img src="assets/left.svg" alt="right" width="30" height="30"></button>
                 <button @click="moveNext(index)"><img src="assets/right.svg" alt="right" width="30" height="30"></button>
+                <form @submit.prevent="moveBack(index)">
+                    <label for="problem">Причина возврата:</label><br>
+                    <input type="text" id="problem" name="problem" v-model="task.problem" required><br>
+                    <input type="submit" value="Вернуть в разработку">
+                </form>
                 <hr></hr>
             </li>
         </ul>
@@ -187,6 +200,13 @@ Vue.component('column3', {
             localStorage.setItem('tasks3', JSON.stringify(this.tasks));
         },
         moveNext(index) {
+            let today = new Date();
+            let deadline = new Date(this.tasks[index].deadline)
+            if(today > deadline) {
+                this.tasks[index].statusCompletion = `Просрочено`
+            } else {
+                this.tasks[index].statusCompletion = `Сдано в срок`
+            }
             eventBus.$emit('task-complete', this.tasks[index]);
             let trash = this.tasks.splice(index, 1)
             localStorage.setItem('tasks3', JSON.stringify(this.tasks));
@@ -214,6 +234,21 @@ Vue.component('column4', {
     template: `
     <div class="p-2 border border-primary">
         <h4>Выполненные задачи</h4>
+        <ul>
+            <li v-for="task in tasks">
+                    {{ task.header }}
+                    <p>Описание:<br>
+                    {{ task.description }}
+                    </p>
+                    <p>
+                        Создано {{ task.creationDate }}<br>
+                        Дэдлайн {{ task.creationDate }}
+                        Статус {{ task.statusCompletion }}
+                    </p>
+                    <p v-show="task.updateTime">Изменено в {{ task.updateTime }}</p>
+                <hr></hr>
+            </li>
+        </ul>
     </div>
     `,
     data() {
@@ -222,8 +257,12 @@ Vue.component('column4', {
         }
     },
     mounted() {
+        if (localStorage.getItem('tasks4')) {
+            this.tasks = JSON.parse(localStorage.getItem('tasks4'));
+        }
         eventBus.$on('task-complete', task => {
             this.tasks.push(task)
+            localStorage.setItem('tasks4', JSON.stringify(this.tasks));
         })
     }
 })
