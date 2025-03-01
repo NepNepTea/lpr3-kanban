@@ -45,13 +45,17 @@ Vue.component('column1', {
         <newTask class="p-2 border border-primary"></newTask>
         <ul>
             <li v-for="(task, index) in tasks">
-                {{ task.header }}<br>
-                {{ task.description }}<br>
-                <p>
-                    Создано {{ task.creationDate }}<br>
-                    Дэдлайн {{ task.deadline }}
-                </p>
-                <button @click="removeTask(index)"><img src="assets/cros.svg" alt="remove" width="30" height="30"></button>
+                <form @submit.prevent="updateTask">
+                    <input type="text" id="header" name="header" v-model="task.header"><br>
+                    <input type="text" id="description" name="description" v-model="task.description"><br>
+                    {{ task.description }}<br>
+                    <p>
+                        Создано {{ task.creationDate }}<br>
+                        Дэдлайн <input type="text" id="deadline" name="deadline" v-model="task.deadline">
+                    </p>
+                    <input type="submit" value="изменить">
+                </form>
+                <button @click="removeTask(index)"><img src="assets/cros.svg" alt="remove" width="30" height="30"></button><br>
                 <button @click="moveNext(index)"><img src="assets/right.svg" alt="right" width="30" height="30"></button>
                 <hr></hr>
             </li>
@@ -64,18 +68,15 @@ Vue.component('column1', {
         }
     },
     methods: {
+        updateTask() {
+            localStorage.setItem('tasks1', JSON.stringify(this.tasks));
+        },
         removeTask(index) {
             let trash = this.tasks.splice(index, 1)
             localStorage.setItem('tasks1', JSON.stringify(this.tasks));
             location.reload();
         },
         moveNext(index) {
-            let task = {
-                header: this.header,
-                description: this.description,
-                creationDate: this.creationDate,
-                deadline: this.deadline
-            }
             eventBus.$emit('task-to-work', this.tasks[index]);
             let trash = this.tasks.splice(index, 1)
             localStorage.setItem('tasks1', JSON.stringify(this.tasks));
@@ -105,6 +106,7 @@ Vue.component('column2', {
                     Создано {{ task.creationDate }}<br>
                     Дэдлайн {{ task.deadline }}
                 </p>
+                <button @click="removeTask(index)"><img src="assets/cros.svg" alt="remove" width="30" height="30"></button>
                 <button @click="moveNext(index)"><img src="assets/right.svg" alt="right" width="30" height="30"></button>
                 <hr></hr>
             </li>
@@ -116,11 +118,24 @@ Vue.component('column2', {
             tasks: []
         }
     },
+    methods: {
+        removeTask(index) {
+            let trash = this.tasks.splice(index, 1)
+            localStorage.setItem('tasks2', JSON.stringify(this.tasks));
+            location.reload();
+        },
+        moveNext(index) {
+            eventBus.$emit('task-to-work', this.tasks[index]);
+            let trash = this.tasks.splice(index, 1)
+            localStorage.setItem('tasks2', JSON.stringify(this.tasks));
+            location.reload();
+        }
+    },
     mounted() {
         if (localStorage.getItem('tasks2')) {
             this.tasks = JSON.parse(localStorage.getItem('tasks2'));
         }
-        eventBus.$on('task-to-work', task => {
+        eventBus.$on('task-to-test', task => {
             this.tasks.push(task)
             localStorage.setItem('tasks2', JSON.stringify(this.tasks));
         })
